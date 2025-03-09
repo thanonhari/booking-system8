@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking System</title>
+    <link rel="icon" href="../favicon.ico" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-6">
+    <!-- ฟอร์มค้นหา Booking -->
+    <div class="p-6 max-w-md bg-white rounded-xl shadow-md space-y-4">
+        <h2 class="text-xl font-bold">Search Your Booking</h2>
+        <form id="search-form" class="space-y-3">
+            <input type="email" name="email" placeholder="Enter Your Email" required class="w-full p-2 border rounded">
+            <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Search</button>
+            <a href="../" class="text-blue-500 hover:underline">Back to Home</a>
+        </form>
+        <div id="search-result" class="text-sm text-gray-700"></div>
+    </div>
+
+    <script type="module">
+        import config from "../config.js";
+
+        const apiUrl = config.aprUrl;
+
+        const searchForm = document.getElementById("search-form");
+        const searchResult = document.getElementById("search-result");
+
+        // ค้นหารายการ Booking ตาม Email
+        searchForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            searchResult.textContent = "Searching...";
+
+            const email = new FormData(e.target).get("email");
+
+            try {
+                const response = await fetch(`${apiUrl}?email=${encodeURIComponent(email)}`);
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    const { Name, Email, Date, Time, Status } = result.booking;
+
+                    searchResult.innerHTML = `
+                <p><strong>Name:</strong> ${Name}</p>
+                <p><strong>Email:</strong> ${Email}</p>
+                <p><strong>Date:</strong> ${Date || "N/A"}</p>
+                <p><strong>Time:</strong> ${Time || "N/A"}</p>
+                <p><strong>Status:</strong> ${Status}</p>
+            `;
+                } else {
+                    searchResult.textContent = "❌ No booking found.";
+                }
+            } catch (error) {
+                searchResult.textContent = "❌ Error: " + error.message;
+            }
+        });
+    </script>
+</body>
+
+</html>
